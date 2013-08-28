@@ -1,4 +1,5 @@
 <?php
+  //Initializes CAS and database calls
   include 'header.php';
 ?>
 
