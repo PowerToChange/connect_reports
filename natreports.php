@@ -87,6 +87,7 @@
                   inner join civicrm_relationship on a.id = civicrm_relationship.contact_id_a
                   inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id
                   where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10
+                  and civicrm_relationship.is_active = 1
                   group by school.`organization_name`;";
               if ($result = $mysqli->query($priority)) {
                 while ($row = mysqli_fetch_assoc($result)) {
