@@ -462,7 +462,7 @@ $(function () {
       <div id='nat_report' style='padding:10px; background:#fff;'>
     <p><strong>National Numbers:</strong></p>
    <p style="font-family:Arial, Helvetica, sans-serif;">Interested Contacts: Total number of contacts with priority not set to "Not Interested". </p>
-   <p style="font-family:Arial, Helvetica, sans-serif;">Contacts In Motion: Total number of contacts with status "In Progress" or "Completed" and priority not set to "Not Interested". </p>
+   <p style="font-family:Arial, Helvetica, sans-serif;">Contacts In Motion: Total number of interested contacts with status "In Progress" or "Completed".</p>
    <p style="font-family:Arial, Helvetica, sans-serif;">Volunteers: Total number of people assigned to follow-up a contact. </p>
 
   </div>
