@@ -152,6 +152,12 @@ text-align:center;
     margin: 15px 10px 0 0;
 }
 
+#national_info .container a {
+    float: left;
+    height: 75px;
+    margin: 15px 10px 0 0;
+}
+
 #national_info .container .box h2 {
     font-size: 30px;
     margin: 10px 0;

@@ -9,6 +9,16 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Connect Reports</title>
 <link rel="stylesheet" href="css/home.css" type="text/css" media="screen"/>
+<script src="html/js/jquery-1.9.1.js"></script>
+<link rel="stylesheet" href="html/css/colorbox.css" />
+
+<script src="html/js/jquery.colorbox-min.js"></script>
+<script src="html/js/jquery.colorbox.js"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $(".inline").colorbox({inline:true, width:"50%"});
+  });
+</script>
 </head>
 
 <body>
@@ -61,7 +71,15 @@
         <h2><?php echo $totalVolunteers; ?></h2>
         <p>Volunteers Helping</p>
       </div>
-      
+      <a class='inline' href="#nat_report" onmouseover="this.style.opacity=0.8;this.filters.alpha.opacity=80" onmouseout="this.style.opacity=1;this.filters.alpha.opacity=100" style="opacity: 1;"><img src="html/images/questionmark.png" / style=" border:none;" ></a>
+        </div>
+</div>
+<div style='display:none'>
+  <div id='nat_report' style='padding:10px; background:#fff;'>
+      <p><strong>National Numbers:</strong></p>
+     <p style="font-family:Arial, Helvetica, sans-serif;">Interested Contacts: Total number of contacts with priority not set to "Not Interested". </p>
+     <p style="font-family:Arial, Helvetica, sans-serif;">Contacts In Motion: Total number of contacts with status "In Progress" or "Completed" and priority not set to "Not Interested". </p>
+     <p style="font-family:Arial, Helvetica, sans-serif;">Volunteers: Total number of people assigned to follow-up a contact. </p>
   </div>
 </div>
 </body>

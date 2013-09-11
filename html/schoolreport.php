@@ -262,7 +262,7 @@ $(function () {
         <input type="checkbox" id="intStudents" name="intStudents" value="true" <?php if($onlyInt){echo "checked";}?>>
         <label for="intStudents">  Only International Students</label>
       </div>
-      <div class="update_link" onClick="document.forms['reportForm'].submit();"><p>View</p></div>
+      <div class="update_link" onClick="document.forms['reportForm'].submit();">View</div>
     </form>
 	</div>
 </div>
@@ -356,7 +356,7 @@ $(function () {
     <table id="dataTable2" cellpadding="0" cellspacing="0">
   <thead>
     <tr>
-      <th>School</th>
+      <th>Volunteer</th>
       <th>Uncontacted</th>
       <th>In Progress</th>
       <th>Completed</th>
@@ -574,19 +574,19 @@ $(function () {
 <div style='display:none'>
       <div id='priority_report' style='padding:10px; background:#fff;'>
   <p style="padding:10px 0;"><strong>Priority Report</strong></p>
-    <p style="font-family:Arial, Helvetica, sans-serif; padding:10px 0;">Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti socio squ ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+    <p style="font-family:Arial, Helvetica, sans-serif; padding:10px 0;">The breakdown of your school's contacts by follow-up priority. I.e. Hot, Medium, Mild, Uninterested and N/A.</p>
   </div>
     <div id='follow_up' style='padding:10px; background:#fff;'>
    <p style="padding:10px 0;"><strong>Follow-up Progress By Person</strong></p>
-    <p style="font-family:Arial, Helvetica, sans-serif; padding:10px 0;">Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti socio squ ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+    <p style="font-family:Arial, Helvetica, sans-serif; padding:10px 0;">The breakdown of each volunteer's "Uncontacted", "In Process" and "Completed" contacts.</p>
   </div>
     <div id='rejoiceables' style='padding:10px; background:#fff;'>
    <p style="padding:10px 0;"><strong>Rejoiceables:</strong></p>
-    <p style="font-family:Arial, Helvetica, sans-serif; padding:10px 0;">Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti socio squ ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+    <p style="font-family:Arial, Helvetica, sans-serif; padding:10px 0;">Summary of the total rejoiceables for your campus.</p>
     </div>
       <div id='results' style='padding:10px; background:#fff;'>
     <p style="padding:10px 0;"><strong>Results:</strong></p>
-    <p style="font-family:Arial, Helvetica, sans-serif; padding:10px 0;">Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti socio squ ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+    <p style="font-family:Arial, Helvetica, sans-serif; padding:10px 0;">Summary of the follow-up results for you campus.</p>
   </div>
 </div>
 	

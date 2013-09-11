@@ -1,6 +1,7 @@
 <?php
   //Initializes CAS and database calls
   include '../header.php';
+  $onlyInt = $_POST["intStudents"] ? true : false;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -33,7 +34,7 @@ $(document).ready(function(){
 	
 $(document).ready(function(){
 	$(".inline").colorbox({inline:true, width:"50%"});
-	});
+});
 	// Called directly with HTML
 $.colorbox({html:"<h1>Welcome</h1>"});
 
@@ -84,7 +85,7 @@ $(function () {
 
 	<body>
 <div id="header">
-      <div class="title">National Report</div>
+      <div class="title">National Report<?php if($onlyInt){ echo " - International Students"; } ?></div>
    <div class="right_link"><a href="../index.php">Home</a> <font color="#3399FF">|</font> <a href="schoolreport.php">School Reports </a><font color="#3399FF">|</font><a href="?logout="> Logout</a> </div>
     </div>
 <div class="clear"></div>
@@ -100,6 +101,18 @@ $(function () {
     left join civicrm_activity_assignment on civicrm_activity.id = civicrm_activity_assignment.activity_id
     left join civicrm_contact b on civicrm_activity_assignment.assignee_contact_id = b.id
     where activity_date_time > '2013-08-01' and activity_type_id = 32 and priority_id <> 4";
+  if($onlyInt){
+    $count = "select count(distinct a.id) as 'TOTAL', count(CASE civicrm_activity.status_id WHEN 2 then 1 ELSE NULL END) as 'COMPLETED',
+      count(CASE civicrm_activity.status_id WHEN 3 then 1 ELSE NULL END) as 'IN PROGRESS',
+      count(distinct b.id) as 'VOLUNTEERS' from civicrm_activity
+      inner join civicrm_activity_target on civicrm_activity.id = civicrm_activity_target.activity_id
+      inner join civicrm_contact a on civicrm_activity_target.target_contact_id = a.id
+      inner join civicrm_value_student_demographics_7 on a.id = civicrm_value_student_demographics_7.entity_id 
+      left join civicrm_activity_assignment on civicrm_activity.id = civicrm_activity_assignment.activity_id
+      left join civicrm_contact b on civicrm_activity_assignment.assignee_contact_id = b.id
+      where activity_date_time > '2013-08-01' and activity_type_id = 32 and priority_id <> 4 
+      and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\"";
+  }
   if ($countResult = $mysqli->query($count)) {
     while ($row = mysqli_fetch_assoc($countResult)) {
       $totalExposed = $row["TOTAL"];
@@ -124,7 +137,18 @@ $(function () {
   <div class="box">
     <h2><?php echo $totalVolunteers; ?></h2>
     <p>Volunteers Helping</p>
-  </div></div>
+  </div><a class='inline' href="#nat_report" onmouseover="this.style.opacity=0.8;this.filters.alpha.opacity=80" onmouseout="this.style.opacity=1;this.filters.alpha.opacity=100" style="opacity: 1;"><img src="images/questionmark.png" / style=" border:none;" ></a></div>
+
+<div id="choose"><div class="container">
+  <form name="reportForm" id="reportForm" action="nationalreport.php" method="post">
+    <div class="int_box">
+      <input type="checkbox" id="intStudents" name="intStudents" value="true" <?php if($onlyInt){echo "checked";}?>>
+      <label for="intStudents">  Only International Students</label>
+    </div>
+    <div class="update_link" onClick="document.forms['reportForm'].submit();">View</div>
+  </form>
+</div></div>
+
 </div>
 <div class="accordion-expand-holder"> <a class="open">Expand All</a> <font color="#3399FF"> |</font><a class="close">Collapse All</a> </div>
 <div id="accordion">
@@ -161,6 +185,24 @@ $(function () {
           where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10
           and civicrm_relationship.is_active = 1
           group by school.`organization_name`;";
+      if($onlyInt){
+        $priority = "select school.`organization_name` as 'SCHOOL', count(CASE civicrm_activity.priority_id WHEN 1 then 1 ELSE NULL END) as 'HOT', 
+          count(CASE civicrm_activity.priority_id WHEN 2 then 1 ELSE NULL END) as 'MEDIUM',
+          count(CASE civicrm_activity.priority_id WHEN 3 then 1 ELSE NULL END) as 'MILD',
+          count(CASE civicrm_activity.priority_id WHEN 4 then 1 ELSE NULL END) as 'NOT INTERESTED',
+          count(CASE civicrm_activity.priority_id WHEN 5 then 1 ELSE NULL END) as 'N/A',
+          count(*) as 'TOTAL' from civicrm_activity
+          inner join civicrm_activity_target on civicrm_activity.id = civicrm_activity_target.activity_id
+          inner join civicrm_contact a on civicrm_activity_target.target_contact_id = a.id 
+          inner join civicrm_value_student_demographics_7 on a.id = civicrm_value_student_demographics_7.entity_id 
+          left join civicrm_activity_assignment on civicrm_activity.id = civicrm_activity_assignment.activity_id
+          left join civicrm_contact b on civicrm_activity_assignment.assignee_contact_id = b.id
+          inner join civicrm_relationship on a.id = civicrm_relationship.contact_id_a
+          inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id
+          where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10
+          and civicrm_relationship.is_active = 1 and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\" 
+          group by school.`organization_name`;";
+      }
       if ($result = $mysqli->query($priority)) {
         while ($row = mysqli_fetch_assoc($result)) {
           ?>
@@ -221,6 +263,22 @@ $(function () {
         where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10
         and civicrm_relationship.is_active = 1
         group by school.`organization_name`;";
+      if($onlyInt){
+        $status = "select school.`organization_name` as 'SCHOOL', count(CASE civicrm_activity.status_id WHEN 4 then 1 ELSE NULL END) as 'UNCONTACTED', 
+          count(CASE civicrm_activity.status_id WHEN 3 then 1 ELSE NULL END) as 'IN PROGRESS',
+          count(CASE civicrm_activity.status_id WHEN 2 then 1 ELSE NULL END) as 'COMPLETED',
+          count(*) as 'TOTAL' from civicrm_activity
+          inner join civicrm_activity_target on civicrm_activity.id = civicrm_activity_target.activity_id
+          inner join civicrm_contact a on civicrm_activity_target.target_contact_id = a.id 
+          inner join civicrm_value_student_demographics_7 on a.id = civicrm_value_student_demographics_7.entity_id          
+          left join civicrm_activity_assignment on civicrm_activity.id = civicrm_activity_assignment.activity_id
+          left join civicrm_contact b on civicrm_activity_assignment.assignee_contact_id = b.id
+          inner join civicrm_relationship on a.id = civicrm_relationship.contact_id_a
+          inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id
+          where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10
+          and civicrm_relationship.is_active = 1 and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\" 
+          group by school.`organization_name`;";
+      }
       if ($result2 = $mysqli->query($status)) {
         while ($row = mysqli_fetch_assoc($result2)) {
           ?>
@@ -258,6 +316,17 @@ $(function () {
               where activity_date_time > '2013-08-01' and activity_type_id = 47 and `civicrm_value_rejoiceable_16`.`related_survey_152` is not null
               and `civicrm_value_rejoiceable_16`.`rejoiceable_143` is not null
               group by `civicrm_value_rejoiceable_16`.`rejoiceable_143`;";
+            if($onlyInt){
+              $rejoice = "select `civicrm_value_rejoiceable_16`.`rejoiceable_143` as TYPE, count(*) as COUNT from civicrm_activity
+                inner join `civicrm_value_rejoiceable_16` on `civicrm_activity`.id = `civicrm_value_rejoiceable_16`.`entity_id`
+                inner join civicrm_activity_target on civicrm_activity.id = civicrm_activity_target.activity_id
+                inner join civicrm_contact a on civicrm_activity_target.target_contact_id = a.id 
+                inner join civicrm_value_student_demographics_7 on a.id = civicrm_value_student_demographics_7.entity_id
+                where activity_date_time > '2013-08-01' and activity_type_id = 47 and `civicrm_value_rejoiceable_16`.`related_survey_152` is not null
+                and `civicrm_value_rejoiceable_16`.`rejoiceable_143` is not null
+                and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\" 
+                group by `civicrm_value_rejoiceable_16`.`rejoiceable_143`;";
+            }
             if ($result3 = $mysqli->query($rejoice)) {
               while ($row = mysqli_fetch_assoc($result3)) {
                   $totals[$row["TYPE"]] = $row["COUNT"];
@@ -291,6 +360,15 @@ $(function () {
         inner join civicrm_contact a on civicrm_activity_target.target_contact_id = a.id
         where activity_date_time > '2013-08-01' and activity_type_id = 32
         group by civicrm_activity.engagement_level;";
+      if($onlyInt){
+        $results = "select civicrm_activity.engagement_level as 'TYPE', count(*) as 'COUNT' from civicrm_activity
+          inner join civicrm_activity_target on civicrm_activity.id = civicrm_activity_target.activity_id
+          inner join civicrm_contact a on civicrm_activity_target.target_contact_id = a.id
+          inner join civicrm_value_student_demographics_7 on a.id = civicrm_value_student_demographics_7.entity_id
+          where activity_date_time > '2013-08-01' and activity_type_id = 32
+          and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\" 
+          group by civicrm_activity.engagement_level;";
+      }
       if ($result3 = $mysqli->query($results)) {
         while ($row = mysqli_fetch_assoc($result3)) {
           if(isset($row["TYPE"])){
@@ -360,19 +438,26 @@ $(function () {
 <div style='display:none'>
       <div id='priority_report' style='padding:10px; background:#fff;'>
     <p><strong>Priority Report:</strong></p>
- <p style="font-family:Arial, Helvetica, sans-serif;">Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+ <p style="font-family:Arial, Helvetica, sans-serif;">The breakdown each school's contacts by follow-up priority. I.e. Hot, Medium, Mild, Not Interested and N/A.</p>
   </div>
     <div id='follow_up' style='padding:10px; background:#fff;'>
     <p><strong>Follow-up Progress by Person:</strong></p>
- <p style="font-family:Arial, Helvetica, sans-serif;">Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+ <p style="font-family:Arial, Helvetica, sans-serif;">The breakdown of each schools "Uncontacted", "In Process" and "Completed" contacts.</p>
   </div>
     <div id='rejoiceables' style='padding:10px; background:#fff;'>
     <p><strong>Rejoiceables:</strong></p>
-   <p style="font-family:Arial, Helvetica, sans-serif;">Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+   <p style="font-family:Arial, Helvetica, sans-serif;">Summary of the total rejoiceables nationwide.</p>
     </div>
       <div id='results' style='padding:10px; background:#fff;'>
     <p><strong>Results:</strong></p>
-   <p style="font-family:Arial, Helvetica, sans-serif;">Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+   <p style="font-family:Arial, Helvetica, sans-serif;">Summary of the follow-up results nationwide.</p>
+  </div>
+      <div id='nat_report' style='padding:10px; background:#fff;'>
+    <p><strong>National Numbers:</strong></p>
+   <p style="font-family:Arial, Helvetica, sans-serif;">Interested Contacts: Total number of contacts with priority not set to "Not Interested". </p>
+   <p style="font-family:Arial, Helvetica, sans-serif;">Contacts In Motion: Total number of contacts with status "In Progress" or "Completed" and priority not set to "Not Interested". </p>
+   <p style="font-family:Arial, Helvetica, sans-serif;">Volunteers: Total number of people assigned to follow-up a contact. </p>
+
   </div>
 </div>
 	
