@@ -1,7 +1,13 @@
 <?php
   include '../header.php';
   $schoolID = 0; $schoolLabel = $_POST["hiddenSchool"] ?: -1;
-  $surveyID = 0; $surveyLabel = $_POST["hiddenSurvey"] ?: -1;
+  $surveyID = 0; $surveyLabel = $_POST["hiddenSurvey"] ?: "All Surveys";
+  $surveyAddon = ""; $rejSurveyAddon = ""; $useSurvey = false;
+  if($surveyLabel != "All Surveys"){
+    $useSurvey = true;
+    $survyAddon = " and civicrm_activity.source_record_id = ?";
+    $rejSurveyAddon = " and civicrm_value_rejoiceable_16.related_survey_152 = ?";
+  }
   $onlyInt = $_POST["intStudents"] ? true : false;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -235,9 +241,10 @@ $(function () {
       <section class="main">
 				<div class="wrapper-demo">
 					<div id="dd2" class="wrapper-dropdown-1" tabindex="1">
-						<span><?php echo ($surveyLabel != -1 ? $surveyLabel : "Search Survey"); ?></span>
-            <input type="hidden" value="<?php echo ($surveyLabel != -1 ? $surveyLabel : -1); ?>" id="hiddenSurvey" name="hiddenSurvey">
+						<span><?php echo ($surveyLabel != -1 ? $surveyLabel : "All Surveys"); ?></span>
+            <input type="hidden" value="<?php echo $surveyLabel; ?>" id="hiddenSurvey" name="hiddenSurvey">
               <ul class="dropdown" tabindex="1">
+                <li><a href="">All Surveys</a></li>
                 <?php
                   $surveyQuery = "select civicrm_survey.title as 'SURVEY', civicrm_survey.id as 'ID' from civicrm_activity
                     inner join civicrm_survey on civicrm_activity.source_record_id = civicrm_survey.id
@@ -297,7 +304,7 @@ $(function () {
         inner join civicrm_relationship on a.id = civicrm_relationship.contact_id_a
         inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id
         where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10
-        and school.id = ? and civicrm_activity.`source_record_id` = ? group by civicrm_activity.`priority_id`";
+        and school.id = ?" . $survyAddon . " group by civicrm_activity.`priority_id`";
       if($onlyInt){
         $priQuery = "select civicrm_activity.`priority_id` as PRIORITY, 
           count(CASE civicrm_activity.status_id WHEN 4 then 1 ELSE NULL END) as 'UNCONTACTED', 
@@ -311,10 +318,15 @@ $(function () {
           inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id
           where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10
           and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\" 
-          and school.id = ? and civicrm_activity.`source_record_id` = ? group by civicrm_activity.`priority_id`";
+          and school.id = ?" . $survyAddon . " group by civicrm_activity.`priority_id`";
       }
       if ($priStmt = $mysqli->prepare($priQuery)){
-        $priStmt->bind_param("ii", $schoolID, $surveyID);
+        if($useSurvey){
+          $priStmt->bind_param("ii", $schoolID, $surveyID);
+        }
+        else {
+          $priStmt->bind_param("i", $schoolID);
+        }
         $priStmt->execute();
         $priStmt->bind_result($priority_bind, $uncontacted_bind, $inProgress_bind, $completed_bind, $total_bind);
         while ($priStmt->fetch()) {
@@ -378,7 +390,7 @@ $(function () {
         inner join civicrm_relationship on a.id = civicrm_relationship.contact_id_a
         inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id
         where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10
-        and school.id = ? and civicrm_activity.`source_record_id` = ? group by b.`sort_name`;";
+        and school.id = ?" . $survyAddon . " group by b.`sort_name`;";
       if($onlyInt){
         $stuQuery = "select b.`sort_name` as 'NAME', 
           count(CASE civicrm_activity.status_id WHEN 4 then 1 ELSE NULL END) as 'UNCONTACTED', 
@@ -394,10 +406,15 @@ $(function () {
           inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id 
           where activity_date_time > '2013-08-01' and activity_type_id = 32 and civicrm_relationship.`relationship_type_id` = 10 
           and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\" 
-          and school.id = ? and civicrm_activity.`source_record_id` = ? group by b.`sort_name`;";
+          and school.id = ?" . $survyAddon . " group by b.`sort_name`;";
       }
       if ($stuStmt = $mysqli->prepare($stuQuery)){
-        $stuStmt->bind_param("ii", $schoolID, $surveyID);
+        if($useSurvey){
+          $stuStmt->bind_param("ii", $schoolID, $surveyID);
+        }
+        else {
+          $stuStmt->bind_param("i", $schoolID);
+        }
         $stuStmt->execute();
         $stuStmt->bind_result($name_bind, $uncontacted_bind, $inProgress_bind, $completed_bind, $total_bind);
         while ($stuStmt->fetch()) {
@@ -434,8 +451,7 @@ $(function () {
       inner join civicrm_relationship on a.id = civicrm_relationship.contact_id_a
       inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id
       where activity_date_time > '2013-08-01' and activity_type_id = 47 and civicrm_value_rejoiceable_16.related_survey_152 is not null
-      and civicrm_value_rejoiceable_16.rejoiceable_143 is not null and school.id = ? and civicrm_value_rejoiceable_16.related_survey_152 = ?
-      group by civicrm_value_rejoiceable_16.rejoiceable_143";
+      and civicrm_value_rejoiceable_16.rejoiceable_143 is not null and school.id = ?" . $rejSurveyAddon . " group by civicrm_value_rejoiceable_16.rejoiceable_143";
     if($onlyInt){
       $rejQuery = "select civicrm_value_rejoiceable_16.rejoiceable_143 as 'TYPE', count(*) as 'COUNT' from civicrm_activity
       inner join civicrm_value_rejoiceable_16 on civicrm_activity.id = civicrm_value_rejoiceable_16.entity_id
@@ -446,11 +462,15 @@ $(function () {
       inner join civicrm_value_student_demographics_7 on a.id = civicrm_value_student_demographics_7.entity_id
       where activity_date_time > '2013-08-01' and activity_type_id = 47 and civicrm_value_rejoiceable_16.related_survey_152 is not null
       and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\"
-      and civicrm_value_rejoiceable_16.rejoiceable_143 is not null and school.id = ? and civicrm_value_rejoiceable_16.related_survey_152 = ?
-      group by civicrm_value_rejoiceable_16.rejoiceable_143";
+      and civicrm_value_rejoiceable_16.rejoiceable_143 is not null and school.id = ?" . $rejSurveyAddon . " group by civicrm_value_rejoiceable_16.rejoiceable_143";
     }
     if ($rejStmt = $mysqli->prepare($rejQuery)){
-      $rejStmt->bind_param("ii", $schoolID, $surveyID);
+      if($useSurvey){
+        $rejStmt->bind_param("ii", $schoolID, $surveyID);
+      }
+      else {
+        $rejStmt->bind_param("i", $schoolID);
+      }
       $rejStmt->execute();
       $rejStmt->bind_result($type_bind, $count_bind);
       while ($rejStmt->fetch()) {
@@ -489,8 +509,8 @@ $(function () {
       inner join civicrm_relationship on a.id = civicrm_relationship.contact_id_a
       inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id 
       where activity_date_time > '2013-08-01' and activity_type_id = 32
-      and civicrm_activity.engagement_level is not null and school.id = ? and civicrm_activity.`source_record_id` = ?
-      group by civicrm_activity.engagement_level";
+      and civicrm_activity.engagement_level is not null and school.id = ?" . $survyAddon .
+      " group by civicrm_activity.engagement_level";
     if($onlyInt){
       $resQuery = "select civicrm_activity.engagement_level as TYPE, count(*) as COUNT from civicrm_activity
         inner join civicrm_activity_target on civicrm_activity.id = civicrm_activity_target.activity_id
@@ -499,12 +519,17 @@ $(function () {
         inner join civicrm_relationship on a.id = civicrm_relationship.contact_id_a 
         inner join civicrm_contact school on civicrm_relationship.`contact_id_b` = school.id 
         where activity_date_time > '2013-08-01' and activity_type_id = 32 
-        and civicrm_activity.engagement_level is not null and school.id = ? and civicrm_activity.`source_record_id` = ? 
-        and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\"
+        and civicrm_activity.engagement_level is not null and school.id = ?" . $survyAddon .  
+        " and civicrm_value_student_demographics_7.i_am_an_international_student_61 = \"yes\"
         group by civicrm_activity.engagement_level";
     }
     if ($resStmt = $mysqli->prepare($resQuery)){
-      $resStmt->bind_param("ii", $schoolID, $surveyID);
+      if($useSurvey){
+        $resStmt->bind_param("ii", $schoolID, $surveyID);
+      }
+      else {
+        $resStmt->bind_param("i", $schoolID);
+      }
       $resStmt->execute();
       $resStmt->bind_result($type_bind, $count_bind);
       while ($resStmt->fetch()) {
