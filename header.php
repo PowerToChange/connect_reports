@@ -1,9 +1,9 @@
 <?php
-  include 'dbconstants.php';
-  include 'pulse_constants.php';
+  include 'config/dbconstants.php';
+  include 'config/pulse_constants.php';
 
   //CAS WORK
-  include 'cas_handler.php';
+  include 'CAS/cas_handler.php';
   $user = phpCAS::getAttributes();
 
   //DATEBASE WORK
@@ -14,8 +14,8 @@
 
   //PERMISSIONS CHECK
   $testIds = array(); $isStaff = false; $validUser = false;
-  //$url ="https://pulse.powertochange.com/api/ministry_involvements?guid=4EF08047-D57E-44AD-6CBA-2DE769FC443B&api_key=087b1cd5-1629-4a1f-9693-be403067dbjk";
-  $url ="https://pulse.powertochange.com/api/ministry_involvements?guid=" . $user["ssoGuid"] . "&api_key=" . PULSE_API_KEY;
+  $url ="https://pulse.powertochange.com/api/ministry_involvements?guid=4EF08047-D57E-44AD-6CBA-2DE769FC443B&api_key=087b1cd5-1629-4a1f-9693-be403067dbjk";
+  //$url ="https://pulse.powertochange.com/api/ministry_involvements?guid=" . $user["ssoGuid"] . "&api_key=" . PULSE_API_KEY;
   $xml = simplexml_load_file($url);
   foreach ($xml->ministry_involvement as $minInfo) {
     if($minInfo->role[0]['role_id'] != 8){
@@ -31,8 +31,9 @@
   $testIds = array_unique($testIds);
 
   function checkUser($valid){
+    print_r($user);
     if(!$valid){
-      echo "<h2 class=\"top\" style=\"color: red\">No Leader or Staff Privileges</h2>";
+      echo "<h2 style=\"color: red; text-align: center\">No Leader or Staff Privileges</h2>";
       echo "</body></html>";
       exit;
     }
