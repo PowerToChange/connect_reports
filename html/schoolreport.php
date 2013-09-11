@@ -481,7 +481,7 @@ $(function () {
     
   <?php
     $rTotals = array(); $badTotal = 0; $goodTotal = 0;
-    $titles = array(0 => "Bad Info", 1 => "No Response", 2=> "No Longer Interested", 3 => "No Follow-up Required", 5 => "Request Fulfilled Digital", 
+    $titles = array(0 => "Bad Info", 1 => "No Response", 2=> "No Longer Interested", 5 => "Request Fulfilled Digital", 
       7 => "Request Fulfilled Face-to-Face", 8 => "Digital Interaction and Wants to Continue", 10 => "Face-to-face Interaction and Wants to Continue");
     $resQuery = "select civicrm_activity.engagement_level as TYPE, count(*) as COUNT from civicrm_activity
       inner join civicrm_activity_target on civicrm_activity.id = civicrm_activity_target.activity_id
@@ -517,7 +517,7 @@ $(function () {
   <table class="nonDT" cellspacing="0px">
     <tbody>
       <?php
-            for($i = 0; $i <= 3; $i++){
+            for($i = 0; $i <= 2; $i++){
               if(!isset($rTotals[$i])){
                 $rTotals[$i] = 0;
               }
@@ -566,7 +566,13 @@ $(function () {
             $resStmt->close();
           }
       ?>
-  </table>
+    </table>
+    <br>
+    <table><tr>
+      <td><h4>No Follow-up Required Total</h4></td>
+      <td style="padding-left:10px"></td>
+      <td><h4><?php echo $rTotals[3] ?: 0; ?></h4></td>
+    </tr></table>
   </div>
     </div>
 
